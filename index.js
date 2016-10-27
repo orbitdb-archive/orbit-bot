@@ -33,6 +33,14 @@ function formatTimestamp(timestamp) {
 // Start an IPFS daemon
 IpfsDaemon({ IpfsDataDir: ipfsDataDir })
   .then((daemon) => {
+    // Output the IPFS id
+    daemon.ipfs.id().then((id) => {
+      console.log(">", id.id)
+      id.addresses.forEach((e) => console.log(">", e))
+      console.log(">", id.publicKey)
+    })
+
+    // Setup Orbit
     const options = {
       cacheFile: dataDir + '/orbit.cache',
       maxHistory: 10, 
