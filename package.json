@@ -10,6 +10,6 @@
   "license": "MIT",
   "dependencies": {
     "ipfs-daemon": "^0.1.0",
-    "orbit_": "^0.0.10"
+    "orbit_": "^0.0.11"
   }
 }
