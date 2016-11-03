@@ -9,7 +9,7 @@
   "author": "Haad",
   "license": "MIT",
   "dependencies": {
-    "ipfs-daemon": "^0.1.0",
-    "orbit_": "^0.0.11"
+    "ipfs-daemon": "^0.1.1",
+    "orbit_": "^0.0.12"
   }
 }
