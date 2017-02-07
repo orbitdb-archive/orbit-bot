@@ -2,7 +2,7 @@
   A simple Orbit bot that listens on a channel and caches all messages.
 
   Usage:
-  node index.js <botname> <channel>
+  node index.js <botname> <channel> [<interval> <text>]
 
   Eg.
   node index.js Cacher1 ipfs
@@ -14,14 +14,16 @@ const IpfsDaemon = require('ipfs-daemon')
 const Orbit = require('orbit_')
 
 // Options
-let user = process.argv[2] || 'OrbitBot'
-let channel = process.argv[3] || 'ipfs'
+let user = process.argv[2] || 'orbit-bot'
+let channel = process.argv[3] || 'skynet'
+let interval = process.argv[4] || 1000
+let text = process.argv[5] || 'ping'
 
 // State
-let orbit, ipfs
+let orbit
 
 // MAIN
-const dataDir = './cache/' + user
+const dataDir = './orbit-bot-data/' + user
 const ipfsDataDir = dataDir + '/ipfs'
 
 function formatTimestamp(timestamp) {
@@ -31,65 +33,63 @@ function formatTimestamp(timestamp) {
 }
 
 // Start an IPFS daemon
-IpfsDaemon({ IpfsDataDir: ipfsDataDir })
-  .then((daemon) => {
-    // Output the IPFS id
-    daemon.ipfs.id().then((id) => {
-      console.log(">", id.id)
-      id.addresses.forEach((e) => console.log(">", e))
-      console.log(">", id.publicKey)
+const ipfs = new IpfsDaemon({ 
+  IpfsDataDir: ipfsDataDir,
+  Addresses: {
+    API: '/ip4/127.0.0.1/tcp/0',
+    Swarm: [
+      '/ip4/0.0.0.0/tcp/0'
+    ],
+    Gateway: '/ip4/0.0.0.0/tcp/0'
+  }
+})
+
+ipfs.on('ready', () => {
+  // Output the IPFS id
+  ipfs.id().then((id) => {
+    console.log("Peer ID:")
+    console.log(">", id.id)
+    console.log("Addresses:")
+    id.addresses.forEach((e) => console.log(">", e))
+    console.log("Public Key:")
+    console.log(">", id.publicKey)
+  })
+
+  // Setup Orbit
+  const options = {
+    cachePath: dataDir + '/orbit-db',
+    maxHistory: 0, 
+    keystorePath: dataDir + '/keystore'
+  }
+
+  orbit = new Orbit(ipfs, options)
+
+  orbit.connect(user)
+    .then(() => {
+      console.log(`-!- Connected to ${orbit.network.name}`)
+      return orbit.join(channel)
+    })
+    .then(() => {
+      console.log(`-!- Joined #${channel}`)    
+      let pingCount = 1
+
+      // Handle new messages
+      orbit.events.on('message', (channel, post) => {
+        console.log(`${formatTimestamp(post.meta.ts)} < ${post.meta.from.name}> ${post.content}`)
+      })
+
+      // Send message at intervals
+      setInterval(() => {
+        orbit.send(channel, `${text} #${pingCount++}`)
+      }, interval)
+
+      return
+    })
+    .catch((e) => {
+      console.error(e)
+      process.exit(1)
     })
 
-    // Setup Orbit
-    const options = {
-      cacheFile: dataDir + '/orbit.cache',
-      maxHistory: 10, 
-      keystorePath: dataDir + '/keys'
-    }
+})
 
-    orbit = new Orbit(daemon.ipfs, options)
-    
-    // Handle new messages
-    orbit.events.on('message', (channel, message) => {
-      // Get the actual content of the message
-      orbit.getPost(message.payload.value, true)
-        .then((post) => {
-          console.log(`${formatTimestamp(post.meta.ts)} < ${post.meta.from.name}> ${post.content}`)
-        })
-    })
-
-    return
-  })
-  .then(() => {
-    // Connect to the network
-    return orbit.connect(user)
-  })
-  .then(() => {
-    console.log(`-!- Connected to ${orbit.network.name}`)
-    return orbit.join(channel)
-  })
-  .then(() => {
-    console.log(`-!- Joined #${channel}`)    
-
-    // Get the channel's database and wait for the history to be loaded
-    const feed = orbit.channels[channel].feed
-    feed.events.on('ready', (name) => {
-      // Get last 10 messages from the database
-      const oldMessages = feed.iterator({ limit: 10 }).collect()
-      // Get the content for each message
-      Promise.all(oldMessages.map((e) => orbit.getPost(e.payload.value, true)))
-        .then((posts) => {
-          console.log("--- History ---")
-          posts.forEach((post) => console.log(`${formatTimestamp(post.meta.ts)} < ${post.meta.from.name}> ${post.content}`))
-          console.log("--- End of History ---")
-          // Send a new message to the channel
-          orbit.send(channel, "/me is now caching this channel")
-        })
-    })
-
-    return
-  })
-  .catch((e) => {
-    console.log(e)
-    process.exit(1)
-  })
+ipfs.on('error', (e) => console.error(e))

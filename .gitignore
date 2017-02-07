@@ -1,4 +1,4 @@
 node_modules/
 *sublime*
-cache/
+orbit-bot-data/
 *.log
