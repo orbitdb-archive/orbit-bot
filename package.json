@@ -11,5 +11,15 @@
   "dependencies": {
     "ipfs-daemon": "~0.3.1",
     "orbit_": "~0.1.0"
-  }
+  },
+  "keywords": [],
+  "homepage": "https://github.com/orbitdb/orbit-bot",
+  "bugs": "https://github.com/orbitdb/orbit-bot/issues",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/orbitdb/orbit-bot.git"
+  },
+  "contributors": [
+    "Haad"
+  ]
 }
