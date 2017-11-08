@@ -1,7 +1,7 @@
 {
   "name": "orbit-bot",
   "version": "0.0.1",
-  "description": "",
+  "description": "Bot for Orbit communication network that caches messages",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -11,5 +11,15 @@
   "dependencies": {
     "ipfs-daemon": "~0.3.1",
     "orbit_": "~0.1.0"
-  }
+  },
+  "keywords": ["bot", "orbit", "orbitdb"],
+  "homepage": "https://github.com/orbitdb/orbit-bot",
+  "bugs": "https://github.com/orbitdb/orbit-bot/issues",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/orbitdb/orbit-bot.git"
+  },
+  "contributors": [
+    "Haadcode <haad@ipfs.io>"
+  ]
 }
