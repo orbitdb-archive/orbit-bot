@@ -10,4 +10,4 @@ Open an issue! This is a WIP.
 
 ## License
 
-[MIT](LICENSE) © 2017 Haadcode
+[MIT](LICENSE) © 2016-2018 Protocol Labs Inc., Haja Networks Oy
