@@ -1,6 +1,7 @@
 {
   "name": "orbit-bot",
   "version": "0.0.1",
+  "private": true,
   "description": "Bot for Orbit communication network that caches messages",
   "main": "index.js",
   "scripts": {
